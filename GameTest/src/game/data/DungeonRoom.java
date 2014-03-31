@@ -31,6 +31,7 @@ public class DungeonRoom {
 		this.y = y;
 		this.level = level;
 		populateRoom(level);
+		
 //		System.out.println("Room created at " + x + "," + y);
 	}
 
