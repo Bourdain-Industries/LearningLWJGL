@@ -1,4 +1,5 @@
-package game.data;
+package game;
+
 
 import java.util.Random;
 

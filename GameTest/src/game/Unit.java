@@ -1,7 +1,8 @@
-package game.data;
+package game;
 
-import java.util.List;
-import java.util.Map;
+
+//import java.util.List;
+//import java.util.Map;
 
 public abstract class Unit {
 	
@@ -16,15 +17,15 @@ public abstract class Unit {
 	private int level;
 	protected DungeonRoom location;
 	
-	private List<Item> inventory;
-	private Map<String, Item> equipment;
+//	private List<Item> inventory;	//TODO: implement this
+//	private Map<String, Item> equipment;	//TODO: implement this
 	
-	public Unit(DungeonRoom location, String name, int level){
+	public Unit(DungeonRoom location, String name, int level, int bonusHealth){
 		this.location = location;
 		this.name = name;
 		this.level = level;
 		
-		this.maxHealth = 10 + level/2;
+		this.maxHealth = 10 + level/2 + bonusHealth;
 		this.currentHealth = this.maxHealth;
 		this.alive = true;
 		this.baseAttack = 10 + level/3 + this.maxHealth/4;

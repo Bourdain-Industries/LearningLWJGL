@@ -1,5 +1,8 @@
 package game.data;
 
+import game.DungeonRoom;
+import game.Item;
+
 public class LootableObject {
 	
 	private DungeonRoom room;

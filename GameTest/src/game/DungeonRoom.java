@@ -1,4 +1,5 @@
-package game.data;
+package game;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,13 +89,15 @@ public class DungeonRoom {
 	}
 	
 	private void populateRoom(int level){
+		if (this == dungeon.getEntrance())
+			return;
 		Random random = new Random();
-		int num = random.nextInt(4);
+		int num = random.nextInt(3);
 		this.enemies = new ArrayList<>(num);
 		for (int i = 0; i < num; i++){
-			level += random.nextInt(2);
-			level -= random.nextInt(2);
-			enemies.add(new Enemy(this, "Slime", level));
+			level += random.nextInt(3);
+			level -= random.nextInt(1);
+			enemies.add(new Enemy(this, "Slime ".concat(Integer.toString(i)), level+1));
 			this.enemyOccupied = true;
 		}
 	}
@@ -102,6 +105,7 @@ public class DungeonRoom {
 	public boolean combat(Player player){
 		System.out.printf("You have joined combat with %d enemies!\n"
 				+ "[R]un or [F]ight?\n", enemies.size());
+		//TODO: enable commands
 		while (player.isAlive() && this.enemyOccupied){
 			for (Enemy enemy : enemies){
 				System.out.printf("%s took %d damage from %s!\n",

@@ -1,11 +1,14 @@
-package game.data;
+package game;
+
 
 public class Player extends Unit {
 
 	private int xp;
+	private int centerX = 100;
+	private int centerY = 377;
 
 	public Player(DungeonRoom location, String name, int level) {
-		super(location, name, level);
+		super(location, name, level, 5);
 	}
 
 	public void gainXP(int gainedXP) {
@@ -16,24 +19,10 @@ public class Player extends Unit {
 		}
 	}
 
-	public void move(int direction) {
-		DungeonRoom location = null;
-		switch (direction) {
-		case 1:
-			location = this.location.getSouth();
-			break;
-		case 2:
-			location = this.location.getWest();
-			break;
-		case 4:
-			location = this.location.getNorth();
-			break;
-		case 8:
-			location = this.location.getEast();
-			break;
-		}
-		if (location == null) location = this.location;
+	public void move(DungeonRoom location) {
+		if (location == null) return;
 		super.setLocation(location);
+		location.setExplored(true);
 	}
 
 	protected void gainLevel() {
@@ -43,6 +32,14 @@ public class Player extends Unit {
 	@Override
 	public int getTotalAttack() {
 		return super.getTotalAttack() + 5;
+	}
+	
+	public int getCenterX() {
+		return centerX;
+	}
+
+	public int getCenterY() {
+		return centerY;
 	}
 
 }
