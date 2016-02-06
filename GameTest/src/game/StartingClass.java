@@ -32,7 +32,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	private URL base;
 	private Graphics second;
-	private static Background bg1, bg2;
+	private static Background bg1;
 	private static RandomDungeon dungeon1;
 	private Animation anim, hanim;
 
@@ -107,7 +107,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void start() {
 
 		bg1 = new Background(0, 0);
-		bg2 = new Background(2160, 0);
 
 //		try {
 //			loadMap("data/map1.txt");
@@ -176,7 +175,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			
 			updateTiles();
 			bg1.update();
-			bg2.update();
 			animate();
 			repaint();
 
@@ -203,6 +201,57 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	}
 
+	public void updateBackground(){
+		int exits = player.getLocation().getExits();
+		switch (exits){
+		case 1:
+			background = getImage(base, "data/south.png");
+			break;
+		case 10:
+			background = getImage(base, "data/west.png");
+			break;
+		case 11:
+			background = getImage(base, "data/southwest.png");
+			break;
+		case 100:
+			background = getImage(base, "data/north.png");
+			break;
+		case 101:
+			background = getImage(base, "data/northsouth.png");
+			break;
+		case 110:
+			background = getImage(base, "data/northwest.png");
+			break;
+		case 111:
+			background = getImage(base, "data/noeast.png");
+			break;
+		case 1000:
+			background = getImage(base, "data/east.png");
+			break;
+		case 1001:
+			background = getImage(base, "data/southeast.png");
+			break;
+		case 1010:
+			background = getImage(base, "data/westeast.png");
+			break;
+		case 1100:
+			background = getImage(base, "data/northeast.png");
+			break;
+		case 1011:
+			background = getImage(base, "data/nonorth.png");
+			break;
+		case 1101:
+			background = getImage(base, "data/nowest.png");
+			break;
+		case 1110:
+			background = getImage(base, "data/nosouth.png");
+			break;
+		case 1111:
+			background = getImage(base, "data/allexits.png");
+			break;
+		}
+	}
+	
 	public void animate() {
 		anim.update(10);
 		hanim.update(50);
@@ -211,7 +260,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void paint(Graphics g) {
 		if (PlayerState == State.Alive) {
 			g.drawImage(background, bg1.getBgX(), bg1.getBgY(), this);
-			g.drawImage(background, bg2.getBgX(), bg2.getBgY(), this);
 			paintTiles(g);
 			g.drawImage(currentSprite, player.getCenterX() - 61,
 					player.getCenterY() - 63, this);
@@ -222,7 +270,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 800, 480);
 			g.setColor(Color.WHITE);
-			g.drawString("[R]etry or [Q]uit?", 360, 240);
+			g.drawString("You have been slain!", 280, 240);
+			g.drawString("[R]etry or [Q]uit?", 290, 270);
 			g.drawString(Integer.toString(player.getLevel()), 740, 30);
 
 		}
@@ -230,7 +279,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			g.setColor(Color.LIGHT_GRAY);
 			g.fillRect(0, 0, 800, 480);
 			g.setColor(Color.BLACK);
-			g.drawString("GAME PAUSED", 360, 240);
+			g.drawString("GAME PAUSED", 280, 240);
+			g.drawString("[Q]uit?", 340, 270);
 			g.drawString(Integer.toString(player.getLevel()), 740, 30);
 		}
 	}
@@ -257,24 +307,29 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_UP:
 			player.move(player.getLocation().getNorth());
+			updateBackground();
 			break;
 
 		case KeyEvent.VK_DOWN:
 			player.move(player.getLocation().getSouth());
+			updateBackground();
 			break;
 
 		case KeyEvent.VK_LEFT:
 			player.move(player.getLocation().getWest());
+			updateBackground();
 			break;
 
 		case KeyEvent.VK_RIGHT:
 			player.move(player.getLocation().getEast());
+			updateBackground();
 			break;
 			
 		case KeyEvent.VK_R:
-			if (PlayerState == State.Dead)
+			if (PlayerState == State.Dead){
 				player = new Player(dungeon1.getEntrance(), player.getName(), player.getLevel());
 				PlayerState = State.Alive;
+			}
 			break;
 
 		case KeyEvent.VK_Q:
@@ -285,8 +340,9 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			break;
 			
 		case KeyEvent.VK_ESCAPE:
-			if (GameState == State.Running)
+			if (GameState == State.Running){
 				GameState = State.Pause;
+			}
 			else
 				GameState = State.Running;
 			break;
@@ -312,10 +368,6 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	public static Background getBg1() {
 		return bg1;
-	}
-
-	public static Background getBg2() {
-		return bg2;
 	}
 
 	public static Player getRobot() {

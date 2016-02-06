@@ -4,8 +4,8 @@ package game;
 public class Player extends Unit {
 
 	private int xp;
-	private int centerX = 100;
-	private int centerY = 377;
+	private int centerX = 400;
+	private int centerY = 240;
 
 	public Player(DungeonRoom location, String name, int level) {
 		super(location, name, level, 5);
@@ -22,6 +22,7 @@ public class Player extends Unit {
 	public void move(DungeonRoom location) {
 		if (location == null) return;
 		super.setLocation(location);
+		System.out.println(Integer.toString(location.getExits()));
 		location.setExplored(true);
 	}
 

@@ -32,7 +32,7 @@ public class DungeonRoom {
 		this.y = y;
 		this.level = level;
 		populateRoom(level);		
-//		System.out.println("Room created at " + x + "," + y);
+		System.out.println("Room created at " + x + "," + y);
 	}
 
 	public void createBranches() {
@@ -131,6 +131,14 @@ public class DungeonRoom {
 		return exits;
 	}
 
+	public int getExits(){
+		int exits = 0;
+		if (this.west != null) exits+=10;
+		if (this.north != null) exits+=100;
+		if (this.south != null) exits+=1;
+		if (this.east != null) exits+=1000;
+		return exits;
+	}
 	public boolean isOccupied() {
 		return enemyOccupied;
 	}
