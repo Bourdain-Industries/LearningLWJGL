@@ -52,7 +52,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		setBackground(Color.BLACK);
 		setFocusable(true);
 		Frame frame = (Frame) this.getParent().getParent();
-		frame.setTitle("Q-Bot Alpha");
+		frame.setTitle("The Alchemist Alpha");
 		addKeyListener(this);
 		try {
 			base = getDocumentBase();
@@ -99,7 +99,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 		currentSprite = anim.getImage();
 		dungeon1 = new RandomDungeon(1);
-		player = new Player(dungeon1.getEntrance(), "Player 1", 1);
+		player = new Player(dungeon1.getEntrance(), "Apprentice", 1);
 
 	}
 
