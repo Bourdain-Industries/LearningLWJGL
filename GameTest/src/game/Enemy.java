@@ -7,7 +7,7 @@ public class Enemy extends Unit {
 
 	public Enemy(DungeonRoom location, String name, int level) {
 		super(location, name, level, 0);
-		this.deathXP = 12;	//temp value
+		this.deathXP = 12;	//temporary value
 	}
 	
 	public int getDeathXP(){

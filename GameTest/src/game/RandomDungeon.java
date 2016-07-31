@@ -38,8 +38,8 @@ public class RandomDungeon {
 		for (int y = 0; y < this.sizeY; y++){
 			for (int x = 0; x < this.sizeX; x++){
 				if (rooms[x][y]!=null && rooms[x][y].isExplored())
-					System.out.printf("%7s", rooms[x][y]);
-				else System.out.printf("%7s", " ");
+					System.out.print(rooms[x][y]);
+				else System.out.print(" |    | ");
 			}
 			System.out.println();
 		}

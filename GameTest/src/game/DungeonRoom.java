@@ -103,9 +103,6 @@ public class DungeonRoom {
 	}
 	
 	public boolean combat(Player player){
-		System.out.printf("You have joined combat with %d enemies!\n"
-				+ "[R]un or [F]ight?\n", enemies.size());
-		//TODO: enable commands
 		while (player.isAlive() && this.enemyOccupied){
 			for (Enemy enemy : enemies){
 				System.out.printf("%s took %d damage from %s!\n",
@@ -172,11 +169,16 @@ public class DungeonRoom {
 	}
 
 	public String toString(){
-		String str = "";
-		if (this.south != null) str += " 1:South ";
-		if (this.west != null) str += " 2:West ";
-		if (this.north != null) str += " 4:North ";
-		if (this.east != null) str += " 8:East ";
-		return "|" + str + "|";
+		StringBuilder str = new StringBuilder();
+		str.append(" |");
+		if (this.south != null) str.append('S');
+		else str.append(' ');
+		if (this.west != null) str.append('W');
+		else str.append(' ');
+		if (this.north != null) str.append('N');
+		else str.append(' ');
+		if (this.east != null) str.append('E');
+		else str.append(' ');
+		return str.append("| ").toString();
 	}
 }

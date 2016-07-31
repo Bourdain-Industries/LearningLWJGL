@@ -16,8 +16,11 @@ import game.framework.Animation;
 @SuppressWarnings("serial")
 public class StartingClass extends Applet implements Runnable, KeyListener {
 
-	enum State {
-		Running, Dead, Alive, Pause
+	enum GameState {
+		Running, Pause
+	}
+	enum PlayerState {
+		Alive, Dead, Combat, Seen
 	}
 
 	private static Player player;
@@ -37,8 +40,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	private Animation anim, hanim;
 
 	private ArrayList<Tile> tilearray = new ArrayList<Tile>();
-	private State GameState = State.Running;
-	private State PlayerState = State.Alive;
+	private GameState gameState = GameState.Running;
+	private PlayerState playerState = PlayerState.Alive;
 
 	@Override
 	public void destroy() {
@@ -118,44 +121,44 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		Thread thread = new Thread(this);
 		thread.start();
 	}
+	
+/*	private void loadMap(String filename) throws IOException {
+		ArrayList lines = new ArrayList();
+		int width = 0;
+		int height = 0;
 
-//	private void loadMap(String filename) throws IOException {
-//		ArrayList lines = new ArrayList();
-//		int width = 0;
-//		int height = 0;
-//
-//		BufferedReader reader = new BufferedReader(new FileReader(filename));
-//		while (true) {
-//			String line = reader.readLine();
-//			// no more lines to read
-//			if (line == null) {
-//				reader.close();
-//				break;
-//			}
-//
-//			if (!line.startsWith("!")) {
-//				lines.add(line);
-//				width = Math.max(width, line.length());
-//
-//			}
-//		}
-//		height = lines.size();
-//
-//		for (int j = 0; j < 12; j++) {
-//			String line = (String) lines.get(j);
-//			for (int i = 0; i < width; i++) {
-//				System.out.println(i + "is i ");
-//
-//				if (i < line.length()) {
-//					char ch = line.charAt(i);
-//					Tile t = new Tile(i, j, Character.getNumericValue(ch));
-//					tilearray.add(t);
-//				}
-//
-//			}
-//		}
-//
-//	}
+		BufferedReader reader = new BufferedReader(new FileReader(filename));
+		while (true) {
+			String line = reader.readLine();
+			// no more lines to read
+			if (line == null) {
+				reader.close();
+				break;
+			}
+
+			if (!line.startsWith("!")) {
+				lines.add(line);
+				width = Math.max(width, line.length());
+
+			}
+		}
+		height = lines.size();
+
+		for (int j = 0; j < 12; j++) {
+			String line = (String) lines.get(j);
+			for (int i = 0; i < width; i++) {
+				System.out.println(i + "is i ");
+
+				if (i < line.length()) {
+					char ch = line.charAt(i);
+					Tile t = new Tile(i, j, Character.getNumericValue(ch));
+					tilearray.add(t);
+				}
+
+			}
+		}
+	}
+*/
 
 	@Override
 	public void stop() {
@@ -166,13 +169,25 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	@Override
 	public void run() {
 		while (true) {
+			player.update();
 			currentSprite = anim.getImage();
-			if (player.getLocation().isOccupied() && player.isAlive()) {
-				if (!player.getLocation().combat(player)) {
-					PlayerState = State.Dead;
-				}
+			
+			if (playerState == PlayerState.Combat) {
+				if (!player.getLocation().combat(player)){
+					playerState = PlayerState.Dead;
+				} else playerState = PlayerState.Alive;
+			}
+			else if (player.getLocation().isOccupied() && player.isAlive()) {
+				playerState = PlayerState.Seen;
+				player.stopAll();
 			}
 			
+			try {
+				updateBackground();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				System.out.print(e1.getMessage());
+			}
 			updateTiles();
 			bg1.update();
 			animate();
@@ -201,7 +216,7 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 
 	}
 
-	public void updateBackground(){
+	public void updateBackground() throws Exception{
 		int exits = player.getLocation().getExits();
 		switch (exits){
 		case 1:
@@ -249,6 +264,8 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 		case 1111:
 			background = getImage(base, "data/allexits.png");
 			break;
+		default:
+				throw new Exception("This should never happen!"); 
 		}
 	}
 	
@@ -258,7 +275,14 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	}
 
 	public void paint(Graphics g) {
-		if (PlayerState == State.Alive) {
+		if (playerState == PlayerState.Dead) {
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, 800, 480);
+			g.setColor(Color.WHITE);
+			g.drawString("You have been slain!", 280, 240);
+			g.drawString("[R]etry or [Q]uit?", 290, 270);
+			g.drawString(Integer.toString(player.getLevel()), 740, 30);
+		} else {
 			g.drawImage(background, bg1.getBgX(), bg1.getBgY(), this);
 			paintTiles(g);
 			g.drawImage(currentSprite, player.getCenterX() - 61,
@@ -266,16 +290,12 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 			g.setFont(font);
 			g.setColor(Color.WHITE);
 			g.drawString(Integer.toString(player.getLevel()), 740, 30);
-		} else if (PlayerState == State.Dead) {
-			g.setColor(Color.BLACK);
-			g.fillRect(0, 0, 800, 480);
-			g.setColor(Color.WHITE);
-			g.drawString("You have been slain!", 280, 240);
-			g.drawString("[R]etry or [Q]uit?", 290, 270);
-			g.drawString(Integer.toString(player.getLevel()), 740, 30);
-
+			if (playerState == PlayerState.Seen) {
+				g.drawString("You have been spotted!", 280, 240);
+				g.drawString("[R]un or [F]ight?", 290, 270);
+			}
 		}
-		if (GameState == State.Pause) {
+		if (gameState == GameState.Pause) {
 			g.setColor(Color.LIGHT_GRAY);
 			g.fillRect(0, 0, 800, 480);
 			g.setColor(Color.BLACK);
@@ -305,46 +325,75 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	public void keyPressed(KeyEvent e) {
 
 		switch (e.getKeyCode()) {
-		case KeyEvent.VK_UP:
-			player.move(player.getLocation().getNorth());
-			updateBackground();
-			break;
-
-		case KeyEvent.VK_DOWN:
-			player.move(player.getLocation().getSouth());
-			updateBackground();
-			break;
-
-		case KeyEvent.VK_LEFT:
-			player.move(player.getLocation().getWest());
-			updateBackground();
-			break;
-
-		case KeyEvent.VK_RIGHT:
-			player.move(player.getLocation().getEast());
-			updateBackground();
-			break;
-			
-		case KeyEvent.VK_R:
-			if (PlayerState == State.Dead){
-				player = new Player(dungeon1.getEntrance(), player.getName(), player.getLevel());
-				PlayerState = State.Alive;
+		case KeyEvent.VK_W:
+			if (playerState == PlayerState.Alive && gameState == GameState.Running) {
+				player.moveUp();
+				player.setMovingUp(true);
 			}
 			break;
 
+		case KeyEvent.VK_S:
+			if (playerState == PlayerState.Alive && gameState == GameState.Running) {
+				player.moveDown();
+				player.setMovingDown(true);
+			}
+			break;
+
+		case KeyEvent.VK_A:
+			if (playerState == PlayerState.Alive && gameState == GameState.Running) {
+				player.moveLeft();
+				player.setMovingLeft(true);
+			}
+			break;
+
+		case KeyEvent.VK_D:
+			if (playerState == PlayerState.Alive && gameState == GameState.Running) {
+				player.moveRight();
+				player.setMovingRight(true);
+			}
+			break;
+			
+		case KeyEvent.VK_R:
+			switch (playerState) {
+			case Dead: {
+				player = new Player(dungeon1.getEntrance(), player.getName(), player.getLevel());
+				playerState = PlayerState.Alive;
+				break;
+			}
+			case Seen: {
+				player.runAway();
+				playerState = PlayerState.Alive;
+				break;
+			}			
+			default:
+				break;			
+			}
+			
+		case KeyEvent.VK_F:
+			if (playerState == PlayerState.Seen){
+				playerState = PlayerState.Combat;
+			}
+			break;
+
+		case KeyEvent.VK_M:
+			if (playerState != PlayerState.Dead){
+				dungeon1.printDungeon();
+			}
+			break;
+			
 		case KeyEvent.VK_Q:
-			if (PlayerState == State.Dead || GameState == State.Pause) {
+			if (playerState == PlayerState.Dead || gameState == GameState.Pause) {
 				destroy();
 				System.exit(0);
 			}
 			break;
 			
 		case KeyEvent.VK_ESCAPE:
-			if (GameState == State.Running){
-				GameState = State.Pause;
+			if (gameState == GameState.Running){
+				gameState = GameState.Pause;
 			}
 			else
-				GameState = State.Running;
+				gameState = GameState.Running;
 			break;
 		}
 	}
@@ -352,10 +401,21 @@ public class StartingClass extends Applet implements Runnable, KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {
 		switch (e.getKeyCode()) {
-//		case KeyEvent.VK_CONTROL:
-//			player.setReadyToFire(true);
-//			break;
-//
+		case KeyEvent.VK_W:
+			player.stopUp();
+			break;
+
+		case KeyEvent.VK_S:
+			player.stopDown();
+			break;
+
+		case KeyEvent.VK_A:
+			player.stopLeft();
+			break;
+
+		case KeyEvent.VK_D:
+			player.stopRight();
+			break;
 		}
 
 	}
