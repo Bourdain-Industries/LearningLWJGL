@@ -1,6 +1,5 @@
 package game.framework;
 
-import java.awt.Image;
 import java.util.ArrayList;
 
 public class Animation {
@@ -20,9 +19,9 @@ public class Animation {
 		}
 	}
 
-	public synchronized void addFrame(Image image, long duration) {
+	public synchronized void addFrame(int textureID, long duration) {
 		totalDuration += duration;
-		frames.add(new AnimFrame(image, totalDuration));
+		frames.add(new AnimFrame(textureID, totalDuration));
 	}
 
 	public synchronized void update(long elapsedTime) {
@@ -41,11 +40,11 @@ public class Animation {
 		}
 	}
 
-	public synchronized Image getImage() {
+	public synchronized int getFrameTexture() {
 		if (frames.size() == 0) {
-			return null;
+			return 0;
 		} else {
-			return getFrame(currentFrame).image;
+			return getFrame(currentFrame).textureID;
 		}
 	}
 
@@ -55,11 +54,11 @@ public class Animation {
 	
 	private class AnimFrame {
 
-		   Image image;
+		   int textureID;
 		   long endTime;
 
-		   public AnimFrame(Image image, long endTime) {
-		      this.image = image;
+		   public AnimFrame(int textureID, long endTime) {
+		      this.textureID = textureID;
 		      this.endTime = endTime;
 		   }
 		}

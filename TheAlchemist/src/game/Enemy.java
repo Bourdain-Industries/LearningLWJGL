@@ -1,6 +1,5 @@
 package game;
 
-
 public class Enemy extends Unit {
 	
 	private int deathXP;
@@ -12,6 +11,12 @@ public class Enemy extends Unit {
 	
 	public int getDeathXP(){
 		return this.deathXP;
+	}
+
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -1,7 +1,4 @@
-package game.data;
-
-import game.DungeonRoom;
-import game.Item;
+package game;
 
 public class LootableObject {
 	

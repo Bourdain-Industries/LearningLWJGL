@@ -1,19 +1,11 @@
 package game;
 
+import game.framework.TextureLoader;
 
 public class Player extends Unit {
 
-	private final int MOVESPEED = 5;
 	private int xp;
-	private int centerX = 400;
-	private int centerY = 240;
-	private int speedX = 0;
-	private int speedY = 0;
 	private DungeonRoom lastLocation;
-	private boolean movingRight = false;
-	private boolean movingLeft = false;
-	private boolean movingUp = false;
-	private boolean movingDown = false;
 
 	public Player(DungeonRoom location, String name, int level) {
 		super(location, name, level, 5);
@@ -29,40 +21,58 @@ public class Player extends Unit {
 		}
 	}
 	
+	@Override
+	public void init() {
+		loadTextures();
+		
+		vertices =  new float[]{
+				0.1f, 0.1f, 0.0f,	0f,0f,0f, 	0f, 0f,
+				0.1f, -0.1f, 0.0f,		0f,0f,0f, 	0f, 1f,
+				-0.1f, 0.1f, 0.0f,		0f,0f,0f, 	1f, 0f,
+				-0.1f, -0.1f, 0.0f,	0f,0f,0f,	1f, 1f
+		};
+		
+		super.init();
+		
+	}
+	
+	@Override
 	public void update() {
 		
 		centerX += speedX;
 		centerY += speedY;
-
+		
 		// Prevents going beyond X coordinate of 0 unless there is a door
-		if (centerX + speedX <= 90) {
-			if (location.getWest() != null && centerY > 195 && centerY < 285) {
+		if (centerX + speedX <= -0.8f) {
+			if (location.getWest() != null && centerY > -0.15f && centerY < 0.15f) {
 				moveLocation(location.getWest());
-				centerX = 709;
-			} else centerX = 91;
+				centerX = 0.78f;
+			} else centerX = -0.78f;
 		}
 		// Prevents going beyond X coordinate of 800 unless there is a door
-		if (centerX + speedX >= 710) {
-			if (location.getEast() != null && centerY > 195 && centerY < 285) {
+		if (centerX + speedX >= 0.8f) {
+			if (location.getEast() != null && centerY > -0.15f && centerY < 0.15f) {
 				moveLocation(location.getEast());
-				centerX = 91;
-			} else centerX = 709;
+				centerX = -0.78f;
+			} else centerX = 0.78f;
 		}
 
 		// Prevents going beyond Y coordinate of 0 unless there is a door
-		if (centerY + speedY <= 90) {
-			if (location.getNorth() != null && centerX > 365 && centerX < 435) {
+		if (centerY + speedY >= 0.8f) {
+			if (location.getNorth() != null && centerX > -0.15f && centerX < 0.15f) {
 				moveLocation(location.getNorth());
-				centerY = 389;
-			} else centerY = 91;
+				centerY = -0.78f;
+			} else centerY = 0.78f;
 		}
 		// Prevents going beyond Y coordinate of 480 unless there is a door
-		if (centerY + speedY >= 390) {
-			if (location.getSouth() != null && centerX > 365 && centerX < 435) {
+		if (centerY + speedY <= -0.8f) {
+			if (location.getSouth() != null && centerX > -0.15f && centerX < 0.15f) {
 				moveLocation(location.getSouth());
-				centerY = 91;
-			} else centerY = 389;
+				centerY = 0.78f;
+			} else centerY = -0.78f;
 		}
+		
+		super.update();
 	}
 
 	public void moveLocation(DungeonRoom location) {
@@ -92,117 +102,13 @@ public class Player extends Unit {
 	public int getTotalAttack() {
 		return super.getTotalAttack() + 5;
 	}
-	
-	public int getCenterX() {
-		return centerX;
-	}
 
-	public int getCenterY() {
-		return centerY;
-	}
-
-	public void moveRight() {
-		speedX = MOVESPEED;
-	}
-
-	public void moveLeft() {
-		speedX = -MOVESPEED;		
-	}
-
-	public void moveUp() {
-		speedY = -MOVESPEED;
-	}
-
-	public void moveDown() {
-		speedY = MOVESPEED;
-
-	}
-
-	public void stopRight() {
-		setMovingRight(false);
-		stop();
-	}
-
-	public void stopLeft() {
-		setMovingLeft(false);
-		stop();
-	}
-
-	public void stopUp() {
-		setMovingUp(false);
-		stop();
-	}
-
-	public void stopDown() {
-		setMovingDown(false);
-		stop();
-	}
-	
-	public void stopAll() {
-		setMovingUp(false);
-		setMovingDown(false);
-		setMovingRight(false);
-		setMovingLeft(false);
-		stop();
-	}
-
-	private void stop() {
-		if (!isMovingRight() && !isMovingLeft()) {
-			speedX = 0;
-		}
-
-		if (!isMovingRight() && isMovingLeft()) {
-			moveLeft();
-		}
-
-		if (isMovingRight() && !isMovingLeft()) {
-			moveRight();
-		}
-		
-		if (!isMovingUp() && !isMovingDown()) {
-			speedY = 0;
-		}
-
-		if (!isMovingUp() && isMovingDown()) {
-			moveDown();
-		}
-
-		if (isMovingUp() && !isMovingDown()) {
-			moveUp();
-		}
-
-	}
-	
-	public boolean isMovingRight() {
-		return movingRight;
-	}
-
-	public void setMovingRight(boolean movingRight) {
-		this.movingRight = movingRight;
-	}
-
-	public boolean isMovingLeft() {
-		return movingLeft;
-	}
-
-	public void setMovingLeft(boolean movingLeft) {
-		this.movingLeft = movingLeft;
-	}
-	
-	public boolean isMovingUp() {
-		return movingUp;
-	}
-
-	public void setMovingUp(boolean movingUp) {
-		this.movingUp = movingUp;
-	}
-
-	public boolean isMovingDown() {
-		return movingDown;
-	}
-
-	public void setMovingDown(boolean movingDown) {
-		this.movingDown = movingDown;
+	private void loadTextures() {
+		int character2 =TextureLoader.loadTexture( TextureLoader.loadImage("/data/character2.png"));
+		anim.addFrame(TextureLoader.loadTexture(TextureLoader.loadImage("/data/character.png")), 1250);
+		anim.addFrame(character2, 50);
+		anim.addFrame(TextureLoader.loadTexture(TextureLoader.loadImage("/data/character3.png")), 50);
+		anim.addFrame(character2, 50);
 	}
 
 }

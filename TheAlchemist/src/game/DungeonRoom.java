@@ -130,10 +130,10 @@ public class DungeonRoom {
 
 	public int getExits(){
 		int exits = 0;
-		if (this.west != null) exits+=10;
-		if (this.north != null) exits+=100;
+		if (this.west != null) exits+=2;
+		if (this.north != null) exits+=4;
 		if (this.south != null) exits+=1;
-		if (this.east != null) exits+=1000;
+		if (this.east != null) exits+=8;
 		return exits;
 	}
 	public boolean isOccupied() {
