@@ -1,10 +1,6 @@
 package game;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-
 import game.framework.*;
 
 public class Game {
@@ -13,17 +9,18 @@ public class Game {
 		Running, Pause
 	}
 	
-	private State gameState;
+	private static State gameState;
 	private static Player player;
 	static Background bg1;
 	static RandomDungeon dungeon1;
-	ShaderProgram shaderProgram;
+	Renderer renderer;
 	
 	protected Game() {
 		gameState = State.Running;
 		bg1 = new Background(0, 0);
 		dungeon1 = new RandomDungeon(1);
 		player = new Player(dungeon1.getEntrance(), "Apprentice", 1);
+		
 		
 		/*
 		heliboy = TextureLoader.loadImage("/data/heliboy.png");
@@ -39,49 +36,22 @@ public class Game {
 	}
 	
 	protected void init() {
-		try {
-			shaderProgram = new ShaderProgram();
-			shaderProgram.createVertexShader(
-				"#version 330 core\n" +
-				"layout (location = 0) in vec3 aPos; " +
-				"layout (location = 1) in vec3 aColor; " +
-				"layout (location = 2) in vec2 aTexCoord; " +
-				"out vec3 ourColor; " +
-				"out vec2 TexCoord; " +
-				"void main() { " +
-				"gl_Position = vec4(aPos, 1.0); " +
-				"ourColor = aColor; " +
-				"TexCoord = aTexCoord; }");
-			shaderProgram.createFragmentShader(
-				"#version 330 core\n" +
-				"out vec4 FragColor; " +
-				"in vec3 ourColor; " +
-				"in vec2 TexCoord; " +
-				"// texture sampler\n" +
-				"uniform sampler2D texture1; " +
-				"void main() { " +
-				"FragColor = texture(texture1, TexCoord); }");
-			shaderProgram.link();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		bg1.init();
-		player.init();
-
+		renderer = new Renderer();
+		renderer.init(bg1);
+		renderer.init(player);
 	}
 	protected void update() {
 		bg1.update();
 		player.update();
 	}
 	protected void render() {
-		shaderProgram.bind();
-		
-		bg1.render();
-		player.render();
-		
-		shaderProgram.unbind();
+		if (this.isPaused()) {
+			//TODO: pause menu
+		}
+		else {
+			renderer.render(bg1);
+			renderer.render(player);
+		}
 	}
 	
 	protected void processInput(long window, int key, int scancode, int action, int mods){
@@ -179,15 +149,8 @@ public class Game {
 	}
 		
 	private void quit() {
-		if (shaderProgram != null) shaderProgram.cleanup();
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-		bg1.cleanup();
-		player.cleanup();
+		renderer.cleanup(bg1);
+		renderer.cleanup(player);
 	}
 
 	public boolean isRunning() {

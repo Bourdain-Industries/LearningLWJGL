@@ -1,23 +1,12 @@
 package game;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
+import static org.lwjgl.opengl.GL15.*;
 
-import org.lwjgl.system.MemoryUtil;
-
+import game.framework.IRenderable;
 import game.framework.TextureLoader;
 
-public class Background {
+public class Background implements IRenderable{
 
 	private int bgX, bgY, speedX, speedY, vao, vbo, ebo;
 	private HashMap<Integer, Integer> backgrounds;
@@ -72,50 +61,33 @@ public class Background {
 	public void setSpeedY(int speedY) {
 		this.speedY = speedY;
 	}
+	
+	public int getVao() {
+		return vao;
+	}
+	public int getVbo() {
+		return vbo;
+	}
+	public int getEbo() {
+		return ebo;
+	}
+	public int getTexture() {
+		return backgrounds.get(Game.getPlayerLocation().getExits());
+	}
 
-	protected void init() {
+	@Override
+	public float[] init(int vao) {
 		loadTextures();
+		this.vao = vao;
+		vbo = glGenBuffers();
+		ebo = glGenBuffers();
 		
-		float[] vertices =  new float[]{
+		return new float[]{
 				1.0f, 1.0f, 0.0f, 0f,0f,0f, 1f, 1f,
 				1.0f, -1.0f, 0.0f,	0f,0f,0f, 1f, 0f,
 				-1.0f, 1.0f, 0.0f,	0f,0f,0f, 0f, 1f,
 				-1.0f, -1.0f, 0.0f,	0f,0f,0f, 0f, 0f
 		};
-		FloatBuffer vBuffer = MemoryUtil.memAllocFloat(vertices.length);
-		vBuffer.put(vertices).flip();
-	
-		int[] indices = new int[] {
-				0, 1, 2,
-				1, 2, 3
-		};
-		IntBuffer iBuffer = MemoryUtil.memAllocInt(indices.length);
-		iBuffer.put(indices).flip();
-		
-		vao = glGenVertexArrays();
-		glBindVertexArray(vao);
-		        
-		vbo = glGenBuffers();
-		ebo = glGenBuffers();
-	
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	    glBufferData(GL_ARRAY_BUFFER, vBuffer, GL_STATIC_DRAW);
-	    MemoryUtil.memFree(vBuffer);
-	
-	    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	    glBufferData(GL_ELEMENT_ARRAY_BUFFER, iBuffer, GL_STATIC_DRAW);
-	    MemoryUtil.memFree(iBuffer);
-	
-		// vertex attribute
-	    glVertexAttribPointer(0, 3, GL_FLOAT, false, 32, 0);
-	    // color attribute
-	    glVertexAttribPointer(1, 3, GL_FLOAT, false, 32, 12);
-	    // texture coord attribute
-	    glVertexAttribPointer(2, 2, GL_FLOAT, false, 32, 24);
-	
-	    glBindBuffer(GL_ARRAY_BUFFER, 0);
-	    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	    glBindVertexArray(0);
 	}
 
 	private void loadTextures() {
@@ -137,28 +109,4 @@ public class Background {
 		backgrounds.put(BG_SOUTH_EXIT | BG_EAST_EXIT | BG_NORTH_EXIT | BG_WEST_EXIT, TextureLoader.loadTexture(TextureLoader.loadImage("/data/allexits.png")));
 	}
 	
-	protected void render() {
-		glBindVertexArray(vao);
-		
-		glBindTexture(GL_TEXTURE_2D, backgrounds.get(Game.getPlayerLocation().getExits()));
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	    glEnableVertexAttribArray(0);
-	  	glEnableVertexAttribArray(1);
-	  	glEnableVertexAttribArray(2);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-	
-	protected void cleanup() {
-		glDeleteVertexArrays(vao);
-		glDeleteBuffers(vbo);
-		glDeleteBuffers(ebo);
-				
-	}
 }

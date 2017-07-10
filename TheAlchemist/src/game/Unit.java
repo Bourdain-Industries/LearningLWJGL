@@ -1,27 +1,19 @@
 package game;
 
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
-
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
 import org.lwjgl.system.MemoryUtil;
 
 import game.framework.Animation;
+import game.framework.IRenderable;
 
 //import java.util.List;
 //import java.util.Map;
 
-public abstract class Unit {
+public abstract class Unit implements IRenderable {
 	
-	private final float MOVE_SPEED = 0.02f;
+	private final float MOVE_SPEED = 0.01f;
 	private String name;
 	protected float centerX = 0;
 	protected float centerY = 0;
@@ -38,7 +30,7 @@ public abstract class Unit {
 	private boolean movingUp = false;
 	private boolean movingDown = false;
 	protected Animation anim;
-	private int vao, vbo, ebo;
+	protected int vao, vbo, ebo;
 	protected float[] vertices;
 	
 //	private List<Item> inventory;	//TODO: implement this
@@ -222,57 +214,34 @@ public abstract class Unit {
 	private void setMovingDown(boolean movingDown) {
 		this.movingDown = movingDown;
 	}
-	
-	public void init() {
-		FloatBuffer vBuffer = MemoryUtil.memAllocFloat(vertices.length);
-		vBuffer.put(vertices).flip();
-	
-		int[] indices = new int[] {
-				0, 1, 2,
-				1, 2, 3
-		};
-		IntBuffer iBuffer = MemoryUtil.memAllocInt(indices.length);
-		iBuffer.put(indices).flip();
-		
-		vao = glGenVertexArrays();
-		glBindVertexArray(vao);
-		        
-		vbo = glGenBuffers();
-		ebo = glGenBuffers();
-	
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	    glBufferData(GL_ARRAY_BUFFER, vBuffer, GL_STATIC_DRAW);
-	    MemoryUtil.memFree(vBuffer);
-	
-	    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	    glBufferData(GL_ELEMENT_ARRAY_BUFFER, iBuffer, GL_STATIC_DRAW);
-	    MemoryUtil.memFree(iBuffer);
-	
-		// vertex attribute
-	    glVertexAttribPointer(0, 3, GL_FLOAT, false, 32, 0);
-	    // color attribute
-	    glVertexAttribPointer(1, 3, GL_FLOAT, false, 32, 12);
-	    // texture coord attribute
-	    glVertexAttribPointer(2, 2, GL_FLOAT, false, 32, 24);
-	
-	    glBindBuffer(GL_ARRAY_BUFFER, 0);
-	    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	    glBindVertexArray(0);
+
+	public int getVao() {
+		return vao;
 	}
+	public int getVbo() {
+		return vbo;
+	}
+	public int getEbo() {
+		return ebo;
+	}
+	public int getTexture() {
+		return anim.getFrameTexture();
+	}
+
+	public abstract float[] init(int vao);
 	
 	protected void update() {
 		anim.update(10);
 		
-		vertices[0] = centerX - 0.1f;
-		vertices[8] = centerX - 0.1f;
-		vertices[16] = centerX + 0.1f;
-		vertices[24] = centerX + 0.1f;
-		vertices[1] = centerY - 0.1f;
-		vertices[9] = centerY + 0.1f;
-		vertices[17] = centerY - 0.1f;
-		vertices[25] = centerY + 0.1f;
+		vertices[0] = centerX - 0.13f;
+		vertices[8] = centerX - 0.13f;
+		vertices[16] = centerX + 0.13f;
+		vertices[24] = centerX + 0.13f;
+		vertices[1] = centerY - 0.13f;
+		vertices[9] = centerY + 0.24f;
+		vertices[17] = centerY - 0.13f;
+		vertices[25] = centerY + 0.24f;
 		
-		glBindVertexArray(vao);
 		FloatBuffer vBuffer = MemoryUtil.memAllocFloat(vertices.length);
 		vBuffer.put(vertices).flip();
 		
@@ -285,27 +254,4 @@ public abstract class Unit {
 	    
 	}
 	
-	protected void render() {
-		glBindVertexArray(vao);
-		glBindTexture(GL_TEXTURE_2D,anim.getFrameTexture());
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	    glEnableVertexAttribArray(0);
-	  	glEnableVertexAttribArray(1);
-	  	glEnableVertexAttribArray(2);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-	
-	protected void cleanup() {
-		glDeleteVertexArrays(vao);
-		glDeleteBuffers(vbo);
-		glDeleteBuffers(ebo);
-				
-	}
 }

@@ -14,7 +14,8 @@ public class Enemy extends Unit {
 	}
 
 	@Override
-	public void init() {
+	public float[] init(int vao) {
+		return new float[0];
 		// TODO Auto-generated method stub
 		
 	}

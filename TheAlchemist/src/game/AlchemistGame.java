@@ -97,7 +97,7 @@ public class AlchemistGame {
 		game.init();
 		
 		// Set the clear color
-		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+		glClearColor(0.8f, 0.8f, 0.8f, 0.5f);
 
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.

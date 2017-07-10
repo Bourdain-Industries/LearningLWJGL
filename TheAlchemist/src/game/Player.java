@@ -1,5 +1,7 @@
 package game;
 
+import static org.lwjgl.opengl.GL15.glGenBuffers;
+
 import game.framework.TextureLoader;
 
 public class Player extends Unit {
@@ -22,17 +24,18 @@ public class Player extends Unit {
 	}
 	
 	@Override
-	public void init() {
+	public float[] init(int vao) {
 		loadTextures();
-		
-		vertices =  new float[]{
-				0.1f, 0.1f, 0.0f,	0f,0f,0f, 	0f, 0f,
-				0.1f, -0.1f, 0.0f,		0f,0f,0f, 	0f, 1f,
-				-0.1f, 0.1f, 0.0f,		0f,0f,0f, 	1f, 0f,
-				-0.1f, -0.1f, 0.0f,	0f,0f,0f,	1f, 1f
+		this.vao = vao;
+		vbo = glGenBuffers();
+		ebo = glGenBuffers();
+		vertices = new float[]{
+				0f, 0f, 0.0f,	0f,0f,0f, 	0f, 0f,
+				0f, 0f, 0.0f,	0f,0f,0f, 	0f, 1f,
+				0f, 0f, 0.0f,	0f,0f,0f, 	1f, 0f,
+				0f, 0f, 0.0f,	0f,0f,0f,	1f, 1f
 		};
-		
-		super.init();
+		return vertices;
 		
 	}
 	
