@@ -23,7 +23,6 @@ public class Camera {
 	private boolean movingBackward;
 	private Vector3f speed = new Vector3f();
 	private Vector3f worldUp = new Vector3f(0f, 1f, 0f);
-	private Vector3f temp = new Vector3f();
 	private Vector3f right = new Vector3f();
 	private float curSpeedH;
 	private float curSpeedV;
