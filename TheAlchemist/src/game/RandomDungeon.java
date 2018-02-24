@@ -10,6 +10,7 @@ public class RandomDungeon {
 	//size is initialized in range 7-12
 	private int sizeX = new Random().nextInt(6) + 7;
 	private int sizeY = new Random().nextInt(6) + 7;
+	private int midX, midY;
 	
 
 	public RandomDungeon(int level){
@@ -21,7 +22,8 @@ public class RandomDungeon {
 	}
 
 	public DungeonRoom addRoom(int x, int y, int level){
-		int midX = this.sizeX/2, midY = this.sizeY/2;
+		this.midX = this.sizeX/2;
+		this.midY = this.sizeY/2;
 		if(Math.abs(x)<=midX && Math.abs(y)<=midY){
 			if (this.rooms[midX+x][midY+y] == null){
 				this.rooms[midX+x][midY+y] = new DungeonRoom(this, x, y, level);
@@ -33,19 +35,22 @@ public class RandomDungeon {
 		else return null;
 	}
 
-	public void printDungeon(){
+	public void printDungeon(DungeonRoom playerLocation){
 		System.out.printf("This dungeon has %d rooms\n", this.roomCount);
 		for (int y = 0; y < this.sizeY; y++){
 			for (int x = 0; x < this.sizeX; x++){
-				if (rooms[x][y]!=null && rooms[x][y].isExplored())
-					System.out.print(rooms[x][y]);
+				if (rooms[x][y] != null && rooms[x][y].isExplored())
+					if (rooms[x][y] == playerLocation)
+						System.out.print(" <" + rooms[x][y] + "> ");
+					else
+						System.out.print(" |" + rooms[x][y] + "| ");
 				else System.out.print(" |    | ");
 			}
 			System.out.println();
 		}
 	}
-	
+
 	public DungeonRoom getEntrance(){
-		return this.rooms[sizeX/2][sizeY/2];
+		return this.rooms[midX][midY];
 	}
 }

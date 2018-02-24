@@ -2,35 +2,36 @@ package game.framework;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
+
+import game.Camera;
 
 public class Renderer {
 	
 	private ShaderProgram shader;
+	private Camera camera;
 	
-	public Renderer() {
+	public Renderer(Camera camera) {
 		try {
 			shader = new ShaderProgram();
 			shader.createVertexShader(
 				"#version 330 core\n" +
+				"uniform mat4 camera; " +
 				"layout (location = 0) in vec3 aPos; " +
 				"layout (location = 1) in vec3 aColor; " +
 				"layout (location = 2) in vec2 aTexCoord; " +
 				"out vec3 ourColor; " +
 				"out vec2 TexCoord; " +
 				"void main() { " +
-				"gl_Position = vec4(aPos, 1.0); " +
+				"gl_Position = camera * vec4(aPos, 1.0); " +
 				"ourColor = aColor; " +
 				"TexCoord = aTexCoord; }");
 			shader.createFragmentShader(
@@ -47,11 +48,12 @@ public class Renderer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		this.camera = camera;
 	}
 	
 	public void init(IRenderable obj) {
-		
+		if (obj == null) return;
+
 		float[] vertices = obj.init(glGenVertexArrays());
 		FloatBuffer vBuffer = MemoryUtil.memAllocFloat(vertices.length);
 		vBuffer.put(vertices).flip();
@@ -86,8 +88,11 @@ public class Renderer {
 	}
 	
 	public void render(IRenderable obj) {
+		if (obj == null) return;
+		
 		shader.bind();
 		
+		shader.setUniformMatrix4("camera", false, camera.getCamera());
 		glBindVertexArray(obj.getVao());
 		glBindTexture(GL11.GL_TEXTURE_2D, obj.getTexture());
 		glBindBuffer(GL_ARRAY_BUFFER, obj.getVbo());
@@ -95,7 +100,10 @@ public class Renderer {
 	    glEnableVertexAttribArray(0);
 	  	glEnableVertexAttribArray(1);
 	  	glEnableVertexAttribArray(2);
+	  	glEnable(GL_BLEND);
+	    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDisable(GL_BLEND);
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
@@ -108,6 +116,7 @@ public class Renderer {
 	}
 	
 	public void cleanup(IRenderable obj) {
+		if (obj == null) return;
 		if (shader != null) shader.cleanup();
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);

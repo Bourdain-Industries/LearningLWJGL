@@ -3,6 +3,9 @@ package game;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+
+import org.joml.Vector2f;
 import org.lwjgl.system.MemoryUtil;
 
 import game.framework.Animation;
@@ -13,12 +16,10 @@ import game.framework.IRenderable;
 
 public abstract class Unit implements IRenderable {
 	
-	private final float MOVE_SPEED = 0.01f;
+	private final float MOVE_SPEED = 0.014f;
 	private String name;
-	protected float centerX = 0;
-	protected float centerY = 0;
-	protected float speedX = 0;
-	protected float speedY = 0;
+	protected Vector2f position = new Vector2f(0f, 0f);
+	protected Vector2f speed = new Vector2f(0f, 0f); 
 	private int currentHealth, maxHealth;
 	private int baseAttack, totalAttack;
 	private int baseDefense, totalDefense;
@@ -33,7 +34,7 @@ public abstract class Unit implements IRenderable {
 	protected int vao, vbo, ebo;
 	protected float[] vertices;
 	
-//	private List<Item> inventory;	//TODO: implement this
+	protected ArrayList<Item> inventory = new ArrayList<Item>();
 //	private Map<String, Item> equipment;	//TODO: implement this
 	
 	public Unit(DungeonRoom location, String name, int level, int bonusHealth){
@@ -91,40 +92,32 @@ public abstract class Unit implements IRenderable {
 	protected void setLocation(DungeonRoom room){
 		this.location = room;
 	}
-	
-	public float getCenterX() {
-		return centerX;
-	}
 
-	public float getCenterY() {
-		return centerY;
-	}
-	
 	public float getSpeedX() {
-		return speedX;
+		return speed.x;
 	}
 
 	public float getSpeedY() {
-		return speedY;
+		return speed.y;
 	}
 	
 	public void moveRight() {
-		speedX = MOVE_SPEED;
+		speed.x = MOVE_SPEED;
 		this.movingRight = true; 
 	}
 
 	public void moveLeft() {
-		speedX = -MOVE_SPEED;
+		speed.x = -MOVE_SPEED;
 		this.movingLeft = true;
 	}
 
 	public void moveUp() {
-		speedY = MOVE_SPEED;
+		speed.y = MOVE_SPEED;
 		this.movingUp = true;
 	}
 
 	public void moveDown() {
-		speedY = -MOVE_SPEED;
+		speed.y = -MOVE_SPEED;
 		this.movingDown = true;
 	}
 
@@ -158,7 +151,7 @@ public abstract class Unit implements IRenderable {
 
 	private void stop() {
 		if (!isMovingRight() && !isMovingLeft()) {
-			speedX = 0;
+			speed.x = 0;
 		}
 
 		if (!isMovingRight() && isMovingLeft()) {
@@ -170,7 +163,7 @@ public abstract class Unit implements IRenderable {
 		}
 		
 		if (!isMovingUp() && !isMovingDown()) {
-			speedY = 0;
+			speed.y = 0;
 		}
 
 		if (!isMovingUp() && isMovingDown()) {
@@ -233,14 +226,16 @@ public abstract class Unit implements IRenderable {
 	protected void update() {
 		anim.update(10);
 		
-		vertices[0] = centerX - 0.13f;
-		vertices[8] = centerX - 0.13f;
-		vertices[16] = centerX + 0.13f;
-		vertices[24] = centerX + 0.13f;
-		vertices[1] = centerY - 0.13f;
-		vertices[9] = centerY + 0.24f;
-		vertices[17] = centerY - 0.13f;
-		vertices[25] = centerY + 0.24f;
+		vertices[0] = position.x - 0.13f;
+		vertices[8] = position.x - 0.13f;
+		vertices[16] = position.x + 0.13f;
+		vertices[24] = position.x + 0.13f;
+		vertices[1] = position.y - 0.16f;
+		vertices[9] = position.y + 0.16f;
+		vertices[17] = position.y - 0.16f;
+		vertices[25] = position.y + 0.16f;
+		vertices[26] = 0.8f;
+		vertices[10] = 	0.8f;
 		
 		FloatBuffer vBuffer = MemoryUtil.memAllocFloat(vertices.length);
 		vBuffer.put(vertices).flip();

@@ -1,6 +1,11 @@
 package game;
 
 import static org.lwjgl.glfw.GLFW.*;
+
+import java.nio.DoubleBuffer;
+
+import org.lwjgl.BufferUtils;
+
 import game.framework.*;
 
 public class Game {
@@ -11,24 +16,18 @@ public class Game {
 	
 	private static State gameState;
 	private static Player player;
-	static Background bg1;
-	static RandomDungeon dungeon1;
+	static RandomDungeon dungeon;
 	Renderer renderer;
+	static Camera camera;
+	DoubleBuffer cameraX = BufferUtils.createDoubleBuffer(1);
+	DoubleBuffer cameraY = BufferUtils.createDoubleBuffer(1);
+	
 	
 	protected Game() {
 		gameState = State.Running;
-		bg1 = new Background(0, 0);
-		dungeon1 = new RandomDungeon(1);
-		player = new Player(dungeon1.getEntrance(), "Apprentice", 1);
-		
-		
-		/*
-		heliboy = TextureLoader.loadImage("/data/heliboy.png");
-		heliboy2 = TextureLoader.loadImage("/data/heliboy2.png");
-		heliboy3 = TextureLoader.loadImage("/data/heliboy3.png");
-		heliboy4 = TextureLoader.loadImage("/data/heliboy4.png");
-		heliboy5 = TextureLoader.loadImage("/data/heliboy5.png");
-		*/
+		dungeon = new RandomDungeon(1);
+		player = new Player(dungeon.getEntrance(), "Apprentice", 1);
+		camera = new Camera(true);
 	}
 	
 	public static DungeonRoom getPlayerLocation() {
@@ -36,25 +35,40 @@ public class Game {
 	}
 	
 	protected void init() {
-		renderer = new Renderer();
-		renderer.init(bg1);
+		renderer = new Renderer(camera);
+		player.getLocation().init(renderer);
+		
 		renderer.init(player);
 	}
-	protected void update() {
-		bg1.update();
+	protected void update(long window, double dt) {
+		if (!this.isPaused()) {
+			glfwGetCursorPos(window, cameraX, cameraY);
+			glfwSetCursorPos(window, 400, 300);
+			camera.update(cameraX.get(0), cameraY.get(0), dt);
+		}
+		DungeonRoom lastLocation = player.getLocation();
 		player.update();
+		DungeonRoom newLocation = player.getLocation();
+		if (newLocation != lastLocation && !newLocation.isExplored()) {
+			newLocation.init(renderer);
+			newLocation.setExplored(true);
+		}
 	}
 	protected void render() {
 		if (this.isPaused()) {
 			//TODO: pause menu
 		}
 		else {
-			renderer.render(bg1);
+			player.getLocation().render(renderer);
+			
 			renderer.render(player);
+			if (player.isLooting()) {
+				player.getLocation().renderLootWindow(renderer);
+			}
 		}
 	}
 	
-	protected void processInput(long window, int key, int scancode, int action, int mods){
+	protected void processKeyboardInput(long window, int key, int scancode, int action, int mods){
 		
 		if ( this.isPaused() ) {
 			switch (key) {
@@ -69,7 +83,9 @@ public class Game {
 				break;
 				
 			case GLFW_KEY_R :
-				player = new Player(dungeon1.getEntrance(), player.getName(), player.getLevel());
+				player = new Player(dungeon.getEntrance(), player.getName(), player.getLevel());
+				renderer.init(player);
+				unpause();
 				break;
 
 			default : break;
@@ -79,48 +95,99 @@ public class Game {
 		else if ( player.isAlive() && action == GLFW_PRESS ) {
 			switch (key) {
 			case GLFW_KEY_ESCAPE :
-				pause();
+				if(player.isLooting()) {
+					player.closeLootWindow();
+				}
+				else pause();
 				break;
 				
-			case GLFW_KEY_W :
+			case GLFW_KEY_UP :
 				player.moveUp();
 				break;
 				
-			case GLFW_KEY_S :
+			case GLFW_KEY_DOWN :
 				player.moveDown();
 				break;
 
-			case GLFW_KEY_A :
+			case GLFW_KEY_LEFT :
 				player.moveLeft();
 				break;
 
-			case GLFW_KEY_D :
+			case GLFW_KEY_RIGHT :
 				player.moveRight();
 				break;
-			
+				
+			case GLFW_KEY_W :
+				camera.moveForward();
+				break;
+				
+			case GLFW_KEY_S :
+				camera.moveBackward();
+				break;
+
+			case GLFW_KEY_A :
+				camera.moveLeft();
+				break;
+
+			case GLFW_KEY_D :
+				camera.moveRight();
+				break;
+				
+			case GLFW_KEY_Q :
+				player.getLocation().startShakeRoom(1000);
+				break;
+				
+			case GLFW_KEY_E :
+				player.activate();
+				break;
+				
 			case GLFW_KEY_R :
 				if ( player.getLocation().isOccupied() )
 					player.runAway();
 				break;
+				
+			case GLFW_KEY_M :
+				dungeon.printDungeon(player.getLocation());
+				break;
+				
 			default : break;
 			}
 		}
 		else if ( player.isAlive() && action == GLFW_RELEASE ) {
 			switch (key) {
-			case GLFW_KEY_W :
+			case GLFW_KEY_UP :
 				player.stopUp();
 				break;
 				
-			case GLFW_KEY_S :
+			case GLFW_KEY_DOWN :
 				player.stopDown();
 				break;
 
-			case GLFW_KEY_A :
+			case GLFW_KEY_LEFT :
 				player.stopLeft();
 				break;
 
-			case GLFW_KEY_D :
+			case GLFW_KEY_RIGHT :
 				player.stopRight();
+				break;
+				
+			case GLFW_KEY_W :
+				camera.stopForward();
+				break;
+				
+			case GLFW_KEY_S :
+				camera.stopBackward();
+				break;
+
+			case GLFW_KEY_A :
+				camera.stopLeft();
+				break;
+
+			case GLFW_KEY_D :
+				camera.stopRight();
+				break;
+				
+			case GLFW_KEY_Q :
 				break;
 			
 			default : break;
@@ -140,7 +207,9 @@ public class Game {
 				break;
 				
 			case GLFW_KEY_R :
-				player = new Player(dungeon1.getEntrance(), player.getName(), player.getLevel());
+				player = new Player(dungeon.getEntrance(), player.getName(), player.getLevel());
+				renderer.init(player);
+				unpause();
 				break;
 
 			default : break;
@@ -148,8 +217,20 @@ public class Game {
 						
 	}
 		
+	protected void processCursorInput(long window, double mouseX, double mouseY) {
+		if (this.isPaused()) {
+			
+		}
+		else {
+			
+		}
+	}
+
+	public void processMouseButtonInput(long window, int button, int action, int mods) {
+		if (action == GLFW_RELEASE) camera.print();
+	}
+	
 	private void quit() {
-		renderer.cleanup(bg1);
 		renderer.cleanup(player);
 	}
 
@@ -167,5 +248,6 @@ public class Game {
 	public void unpause() {
 		gameState = State.Running;
 	}
+
 
 }

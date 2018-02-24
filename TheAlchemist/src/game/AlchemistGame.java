@@ -55,8 +55,19 @@ public class AlchemistGame {
 
 		// Setup a key callback. It will be called every time a key is pressed, repeated or released.
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-			game.processInput(window, key, scancode, action, mods);
+			game.processKeyboardInput(window, key, scancode, action, mods);
 		});
+		
+		glfwSetCursorPosCallback(window, (window, mouseX, mouseY) -> {
+			game.processCursorInput(window, mouseX, mouseY);
+		});
+		
+		glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
+			game.processMouseButtonInput(window, button, action, mods);
+		});
+		
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetCursorPos(window, 400, 300);
 
 		// Get the thread stack and push a new frame
 		try ( MemoryStack stack = stackPush() ) {
@@ -95,16 +106,27 @@ public class AlchemistGame {
 		// bindings available for use.
 		GL.createCapabilities();
 		game.init();
+		double dt = 1.0/60.0;
+		double lastTime = System.currentTimeMillis();
 		
 		// Set the clear color
 		glClearColor(0.8f, 0.8f, 0.8f, 0.5f);
 
 		// Run the rendering loop until the user has attempted to close
-		// the window or has pressed the ESCAPE key.
+		// the window or has pressed the ESCAPE key followed by the Q key.
 		while ( !glfwWindowShouldClose(window) ) {
+			while (System.currentTimeMillis() - lastTime < dt) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			lastTime = System.currentTimeMillis();
 			glFlush();
-			glClear(GL_COLOR_BUFFER_BIT); // clear the framebuffer
-			game.update();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+			game.update(window, dt);
 			game.render();
 			glfwSwapBuffers(window); // swap the color buffers
 

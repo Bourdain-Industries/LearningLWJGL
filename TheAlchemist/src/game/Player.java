@@ -8,9 +8,13 @@ public class Player extends Unit {
 
 	private int xp;
 	private DungeonRoom lastLocation;
+	private Boolean looting = false;
+	private static final float SIDE_WALL = 0.79f;
+	private static final float TOP_WALL = 0.85f;
+	private static final float BOTTOM_WALL = -0.68f;
 
 	public Player(DungeonRoom location, String name, int level) {
-		super(location, name, level, 5);
+		super(location, name, level, 6);
 		lastLocation = location;
 		location.setExplored(true);
 	}
@@ -42,38 +46,37 @@ public class Player extends Unit {
 	@Override
 	public void update() {
 		
-		centerX += speedX;
-		centerY += speedY;
-		
-		// Prevents going beyond X coordinate of 0 unless there is a door
-		if (centerX + speedX <= -0.8f) {
-			if (location.getWest() != null && centerY > -0.15f && centerY < 0.15f) {
+		// Prevents going beyond left wall unless there is a door
+		if (position.x + speed.x <= -SIDE_WALL) {
+			if (location.getWest() != null && position.y > -0.06f && position.y < 0.25f) {
 				moveLocation(location.getWest());
-				centerX = 0.78f;
-			} else centerX = -0.78f;
+				position.x = -position.x;
+			}
 		}
-		// Prevents going beyond X coordinate of 800 unless there is a door
-		if (centerX + speedX >= 0.8f) {
-			if (location.getEast() != null && centerY > -0.15f && centerY < 0.15f) {
+		// Prevents going beyond right wall unless there is a door
+		else if (position.x + speed.x >= SIDE_WALL) {
+			if (location.getEast() != null && position.y > -0.06f && position.y < 0.25f) {
 				moveLocation(location.getEast());
-				centerX = -0.78f;
-			} else centerX = 0.78f;
+				position.x = -position.x;
+			}
 		}
+		else position.x += speed.x;
 
-		// Prevents going beyond Y coordinate of 0 unless there is a door
-		if (centerY + speedY >= 0.8f) {
-			if (location.getNorth() != null && centerX > -0.15f && centerX < 0.15f) {
+		// Prevents going beyond top wall unless there is a door
+		if (position.y + speed.y >= TOP_WALL) {
+			if (location.getNorth() != null && position.x > -0.06f && position.x < 0.06f) {
 				moveLocation(location.getNorth());
-				centerY = -0.78f;
-			} else centerY = 0.78f;
+				position.y = BOTTOM_WALL + 0.01f;
+			}
 		}
-		// Prevents going beyond Y coordinate of 480 unless there is a door
-		if (centerY + speedY <= -0.8f) {
-			if (location.getSouth() != null && centerX > -0.15f && centerX < 0.15f) {
+		// Prevents going beyond bottom wall unless there is a door
+		else if (position.y + speed.y <= BOTTOM_WALL) {
+			if (location.getSouth() != null && position.x > -0.06f && position.x < 0.06f) {
 				moveLocation(location.getSouth());
-				centerY = 0.78f;
-			} else centerY = -0.78f;
+				position.y = TOP_WALL - 0.01f;
+			}
 		}
+		else position.y += speed.y;
 		
 		super.update();
 	}
@@ -82,8 +85,8 @@ public class Player extends Unit {
 		if (location == null) return;
 		lastLocation = this.location;
 		super.setLocation(location);
+		this.closeLootWindow();
 		System.out.println(Integer.toString(location.getExits()));
-		location.setExplored(true);
 	}
 	
 	public void runAway() {
@@ -112,6 +115,19 @@ public class Player extends Unit {
 		anim.addFrame(character2, 50);
 		anim.addFrame(TextureLoader.loadTexture(TextureLoader.loadImage("/data/character3.png")), 50);
 		anim.addFrame(character2, 50);
+	}
+
+	public void activate() {
+		looting = location.activateObject(position);
+	}
+
+	public Boolean isLooting() {
+		return looting;
+	}
+
+	public void closeLootWindow() {
+		this.looting = false;
+		
 	}
 
 }
