@@ -150,6 +150,10 @@ public class Game {
 				dungeon.printDungeon(player.getLocation());
 				break;
 				
+			case GLFW_KEY_SPACE :
+				camera.startJump();
+				break;
+				
 			default : break;
 			}
 		}

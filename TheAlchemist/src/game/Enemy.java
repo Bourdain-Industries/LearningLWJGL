@@ -20,4 +20,9 @@ public class Enemy extends Unit {
 		
 	}
 
+	@Override
+	public int getNumVertices() {
+		return 6;
+	}
+
 }

@@ -60,7 +60,9 @@ public class Renderer {
 		
 		int[] indices = new int[] {
 				0, 1, 2,
-				1, 2, 3
+				1, 2, 3,
+				2, 3, 4,
+				3, 4, 5
 		};		
 		IntBuffer iBuffer = MemoryUtil.memAllocInt(indices.length);
 		iBuffer.put(indices).flip();
@@ -102,7 +104,7 @@ public class Renderer {
 	  	glEnableVertexAttribArray(2);
 	  	glEnable(GL_BLEND);
 	    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, obj.getNumVertices(), GL_UNSIGNED_INT, 0);
 		glDisable(GL_BLEND);
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);

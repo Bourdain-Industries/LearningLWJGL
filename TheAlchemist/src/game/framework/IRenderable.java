@@ -7,4 +7,5 @@ public interface IRenderable {
 	int getEbo();
 	int getTexture();
 	float[] init(int vao);
+	int getNumVertices();
 }

@@ -61,4 +61,9 @@ public class LootWindow implements IRenderable {
 		texture = TextureLoader.loadTexture(TextureLoader.loadImage("/data/chest.png"));
 	}
 
+	@Override
+	public int getNumVertices() {
+		return 6;
+	}
+
 }

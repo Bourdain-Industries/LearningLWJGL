@@ -130,4 +130,14 @@ public class Player extends Unit {
 		
 	}
 
+	@Override
+	public int getNumVertices() {
+		return 6;
+	}
+
+	public void jump() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

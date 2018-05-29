@@ -10,6 +10,7 @@ public class Camera {
 	private static final double PI = Math.PI;
 	private final double LOOK_SENSITIVTY = 0.04;
 	private final float MOVE_SPEED = 6f;
+	private final float GRAVITY = -6f;
 	private Vector3f position, direction, up;
 	private Matrix4f projection, view;
 	private Matrix4f model = new Matrix4f();
@@ -24,12 +25,15 @@ public class Camera {
 	private Vector3f speed = new Vector3f();
 	private Vector3f worldUp = new Vector3f(0f, 1f, 0f);
 	private Vector3f right = new Vector3f();
-	private float curSpeedH;
-	private float curSpeedV;
+	private float curSpeedX;
+	private float curSpeedY = -2f;
+	private float curSpeedZ;
+	private boolean isJumped = false;
+	private long jumpStarted;
 	
 	public Camera(Boolean firstPerson) {
 		this.firstPerson = firstPerson;
-		this.position = new Vector3f(20f, 20f, 20f);
+		this.position = new Vector3f(5f, 0f, 5f);
 		this.direction = new Vector3f();
 		this.projection = new Matrix4f().perspective((float) Math.toRadians(60.0f) , 16f/9f, 0.1f, 100f);
 		this.view = new Matrix4f();
@@ -47,6 +51,12 @@ public class Camera {
 		else if (vertAngle >= PI/2) {
 			vertAngle = PI/2 - 0.001f;
 		}
+		if (System.currentTimeMillis() - 720 > this.jumpStarted) {
+			if (System.currentTimeMillis() - 800 > this.jumpStarted) {
+				this.curSpeedY = GRAVITY;
+			}
+			else this.curSpeedY = 0;
+		}			
 		
 		updateCamera(dt);
 	}
@@ -56,15 +66,22 @@ public class Camera {
 				(float) (Math.cos(vertAngle) * Math.cos(horizAngle)));
 		direction.normalize().cross(worldUp, right);
 		//right.set((float) Math.sin(horizAngle - PI/2f), 0, (float) Math.cos(horizAngle - PI/2f));
-		if (curSpeedH != 0) {
-			right.normalize().mul(curSpeedH*(float) dt, speed);				
-			position.add(speed);
-		}
-		if (curSpeedV != 0) {
-			position.add(direction.mul(curSpeedV * (float) dt, speed));
-		}
+		//if (curSpeedX != 0) {
+		right.normalize().mul(curSpeedX*(float) dt, speed);				
+		position.add(speed);
+		//}
+		//if (curSpeedZ != 0) {
+		position.add(direction.mul(curSpeedZ * (float) dt, speed));
+		//}
+		//position.mul(1f,0f,1f);
+		position.add(worldUp.mul(curSpeedY * (float) dt, speed));
 		direction.add(position);
-		position.mul(1f,0f,1f);
+		
+		if (position.y < 0f) {
+			position.y = 0f;
+			this.isJumped = false;
+		}
+		
 		this.view.setLookAt(position, direction, worldUp); //right.cross(direction));
 	}
 
@@ -102,32 +119,32 @@ public class Camera {
 		}
 	}
 
-	public float getSpeedX() {
-		return speed.x;
-	}
-
-	public float getSpeedZ() {
-		return speed.z;
-	}
-	
 	public void moveRight() {
-		curSpeedH = MOVE_SPEED;
+		curSpeedX = MOVE_SPEED;
 		this.movingRight = true;
 	}
 
 	public void moveLeft() {
-		curSpeedH = -MOVE_SPEED;
+		curSpeedX = -MOVE_SPEED;
 		this.movingLeft = true;
 	}
 
 	public void moveForward() {
-		curSpeedV = MOVE_SPEED;
+		curSpeedZ = MOVE_SPEED;
 		this.movingForward = true;
 	}
 
 	public void moveBackward() {
-		curSpeedV = -MOVE_SPEED;
+		curSpeedZ = -MOVE_SPEED;
 		this.movingBackward = true;
+	}
+	
+	public void startJump() {
+		if (!this.isJumped) {
+		curSpeedY = MOVE_SPEED;
+		this.jumpStarted = System.currentTimeMillis();
+		this.isJumped = true;
+		}
 	}
 
 	public void stopRight() {
@@ -160,7 +177,7 @@ public class Camera {
 
 	private void stop() {
 		if (!isMovingRight() && !isMovingLeft()) {
-			curSpeedH = 0;
+			curSpeedX = 0;
 		}
 
 		if (!isMovingRight() && isMovingLeft()) {
@@ -172,7 +189,7 @@ public class Camera {
 		}
 		
 		if (!isMovingForward() && !isMovingBackward()) {
-			curSpeedV = 0;
+			curSpeedZ = 0;
 		}
 
 		if (!isMovingForward() && isMovingBackward()) {

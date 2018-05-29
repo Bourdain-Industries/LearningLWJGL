@@ -240,10 +240,14 @@ public class DungeonRoom implements IRenderable{
 		ebo = glGenBuffers();
 		
 		return new float[]{
-				1.0f, -1f, 1.0f, 0f,0f,0f, 1f, 1f,
-				1.0f, -1f, 0.0f,	0f,0f,0f, 1f, 0f,
-				0f, -1f, 1.0f,	0f,0f,0f, 0f, 1f,
-				0f, -1f, 0.0f,	0f,0f,0f, 0f, 0f
+				10.0f, -0.7f, 10f, 0f,0f,0f, 1f, 1f,
+				10.0f, -0.7f, 0.0f,	0f,0f,0f, 1f, 0f,
+				
+				0f, -0.7f, 10f,	0f,0f,0f, 0f, 1f,
+				0f, -0.7f, 0.0f,	0f,0f,0f, 0f, 0f,
+				
+				0.0f, 9.7f, 10f, 0f,0f,0f, 1f, 1f,
+				0.0f, 9.7f, 0.0f,	0f,0f,0f, 1f, 0f
 		};
 	}
 
@@ -299,6 +303,11 @@ public class DungeonRoom implements IRenderable{
 
 	public void renderLootWindow(Renderer renderer) {
 		renderer.render(loot.getLootWindow());
+	}
+
+	@Override
+	public int getNumVertices() {
+		return 36;
 	}
 	
 }

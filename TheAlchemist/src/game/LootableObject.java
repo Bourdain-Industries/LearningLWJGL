@@ -85,5 +85,10 @@ public class LootableObject implements IRenderable {
 	public LootWindow getLootWindow() {
 		return lootWindow;
 	}
+
+	@Override
+	public int getNumVertices() {
+		return 6;
+	}
 	
 }
