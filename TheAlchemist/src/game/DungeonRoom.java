@@ -65,28 +65,28 @@ public class DungeonRoom implements IRenderable{
 			if (this.east != null){			
 				this.east.addDoor(this, 3);
 			}
-			rand -= 8;
+			rand -= EAST_EXIT;
 		}
 		if (rand >= NORTH_EXIT){
 			this.north = this.dungeon.addRoom(this.x, this.y-1, this.level);
 			if (this.north != null){
 				this.north.addDoor(this, 2);
 			}
-			rand -= 4;
+			rand -= NORTH_EXIT;
 		}
 		if (rand >= WEST_EXIT){
 			this.west = this.dungeon.addRoom(this.x-1, this.y, this.level);
 			if (this.west != null){
 				this.west.addDoor(this, 1);
 			}
-			rand-=2;
+			rand -= WEST_EXIT;
 		}
 		if (rand >= SOUTH_EXIT){
 			this.south = this.dungeon.addRoom(this.x, this.y+1, this.level);
 			if (this.south != null){
 				this.south.addDoor(this, 0);
 			}
-			rand--;
+			rand -= SOUTH_EXIT;
 		} if (rand > 0) System.out.println("failed");
 		populateRoom(this.level);
 	}
