@@ -8,8 +8,8 @@ import org.joml.Vector3f;
 public class Camera {
 	
 	private static final double PI = Math.PI;
-	private final double LOOK_SENSITIVTY = 0.04;
-	private final float MOVE_SPEED = 6f;
+	private final double LOOK_SENSITIVTY = 0.06;
+	private final float MOVE_SPEED = 4.5f;
 	private final float GRAVITY = -6f;
 	private Vector3f position, direction, up;
 	private Matrix4f projection, view;
@@ -23,7 +23,7 @@ public class Camera {
 	private boolean movingForward;
 	private boolean movingBackward;
 	private Vector3f speed = new Vector3f();
-	private Vector3f worldUp = new Vector3f(0f, 1f, 0f);
+	private final Vector3f worldUp = new Vector3f(0f, 1f, 0f);
 	private Vector3f right = new Vector3f();
 	private float curSpeedX;
 	private float curSpeedY = -2f;
@@ -51,12 +51,16 @@ public class Camera {
 		else if (vertAngle >= PI/2) {
 			vertAngle = PI/2 - 0.001f;
 		}
-		if (System.currentTimeMillis() - 720 > this.jumpStarted) {
-			if (System.currentTimeMillis() - 800 > this.jumpStarted) {
-				this.curSpeedY = GRAVITY;
-			}
-			else this.curSpeedY = 0;
-		}			
+		//controls how long jump lasts
+		if (this.isJumped) {
+			if (System.currentTimeMillis() - this.jumpStarted > 630) {
+				if (System.currentTimeMillis() - this.jumpStarted > 700) {
+					this.curSpeedY = GRAVITY;
+				}
+				else this.curSpeedY = 0;
+			}			
+		}
+		else updateSpeed();
 		
 		updateCamera(dt);
 	}
@@ -119,52 +123,44 @@ public class Camera {
 		}
 	}
 
-	public void moveRight() {
-		curSpeedX = MOVE_SPEED;
-		this.movingRight = true;
+	public void startRight() {
+		setMovingRight(true);
 	}
 
-	public void moveLeft() {
-		curSpeedX = -MOVE_SPEED;
-		this.movingLeft = true;
+	public void startLeft() {
+		setMovingLeft(true);
 	}
 
-	public void moveForward() {
-		curSpeedZ = MOVE_SPEED;
-		this.movingForward = true;
+	public void startForward() {
+		setMovingForward(true);
 	}
 
-	public void moveBackward() {
-		curSpeedZ = -MOVE_SPEED;
-		this.movingBackward = true;
+	public void startBackward() {
+		setMovingBackward(true);
 	}
 	
 	public void startJump() {
 		if (!this.isJumped) {
-		curSpeedY = MOVE_SPEED;
-		this.jumpStarted = System.currentTimeMillis();
-		this.isJumped = true;
+			curSpeedY = MOVE_SPEED;
+			this.jumpStarted = System.currentTimeMillis();
+			this.isJumped = true;
 		}
 	}
 
 	public void stopRight() {
 		setMovingRight(false);
-		stop();
 	}
 
 	public void stopLeft() {
 		setMovingLeft(false);
-		stop();
 	}
 
 	public void stopForward() {
 		setMovingForward(false);
-		stop();
 	}
 
 	public void stopBackward() {
 		setMovingBackward(false);
-		stop();
 	}
 	
 	public void stopAll() {
@@ -172,32 +168,40 @@ public class Camera {
 		setMovingBackward(false);
 		setMovingRight(false);
 		setMovingLeft(false);
-		stop();
+		updateSpeed();
 	}
 
-	private void stop() {
+	private void updateSpeed() {		
 		if (!isMovingRight() && !isMovingLeft()) {
 			curSpeedX = 0;
 		}
 
+		if (isMovingRight() && isMovingLeft()) {
+			curSpeedX = 0;
+		}
+
 		if (!isMovingRight() && isMovingLeft()) {
-			moveLeft();
+			curSpeedX = -MOVE_SPEED;
 		}
 
 		if (isMovingRight() && !isMovingLeft()) {
-			moveRight();
+			curSpeedX = MOVE_SPEED;
 		}
 		
 		if (!isMovingForward() && !isMovingBackward()) {
 			curSpeedZ = 0;
 		}
 
+		if (isMovingForward() && isMovingBackward()) {
+			curSpeedZ = 0;
+		}
+
 		if (!isMovingForward() && isMovingBackward()) {
-			moveBackward();
+			curSpeedZ = -MOVE_SPEED;
 		}
 
 		if (isMovingForward() && !isMovingBackward()) {
-			moveForward();
+			curSpeedZ = MOVE_SPEED;
 		}
 
 	}

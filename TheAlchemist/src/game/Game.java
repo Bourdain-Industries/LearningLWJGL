@@ -118,19 +118,19 @@ public class Game {
 				break;
 				
 			case GLFW_KEY_W :
-				camera.moveForward();
+				camera.startForward();
 				break;
 				
 			case GLFW_KEY_S :
-				camera.moveBackward();
+				camera.startBackward();
 				break;
 
 			case GLFW_KEY_A :
-				camera.moveLeft();
+				camera.startLeft();
 				break;
 
 			case GLFW_KEY_D :
-				camera.moveRight();
+				camera.startRight();
 				break;
 				
 			case GLFW_KEY_Q :
