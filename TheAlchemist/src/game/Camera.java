@@ -16,7 +16,7 @@ public class Camera {
 	private Matrix4f model = new Matrix4f();
 	private Matrix4f camera = new Matrix4f();
 	private Boolean firstPerson;
-	private double horizAngle = -PI, vertAngle = 0; 
+	private double horizAngle = PI/2, vertAngle = 0; 
 	private float[] array = new float[16];
 	private boolean movingRight;
 	private boolean movingLeft;
@@ -26,14 +26,14 @@ public class Camera {
 	private final Vector3f worldUp = new Vector3f(0f, 1f, 0f);
 	private Vector3f right = new Vector3f();
 	private float curSpeedX;
-	private float curSpeedY = -2f;
+	private float curSpeedY = GRAVITY;
 	private float curSpeedZ;
 	private boolean isJumped = false;
 	private long jumpStarted;
 	
 	public Camera(Boolean firstPerson) {
 		this.firstPerson = firstPerson;
-		this.position = new Vector3f(5f, 0f, 5f);
+		this.position = new Vector3f(0f, 0f, 0f);
 		this.direction = new Vector3f();
 		this.projection = new Matrix4f().perspective((float) Math.toRadians(60.0f) , 16f/9f, 0.1f, 100f);
 		this.view = new Matrix4f();
@@ -45,11 +45,11 @@ public class Camera {
 		horizAngle += LOOK_SENSITIVTY * (horiz) * dt;
 		vertAngle += LOOK_SENSITIVTY * (vert) * dt;
 		
-		if (vertAngle <= -PI/2) {
-			vertAngle = -PI/2 + 0.001f;
+		if (vertAngle <= -PI/2 + 0.01f) {
+			vertAngle = -PI/2 + 0.01f;
 		}
-		else if (vertAngle >= PI/2) {
-			vertAngle = PI/2 - 0.001f;
+		else if (vertAngle >= PI/2 - 0.01f) {
+			vertAngle = PI/2 - 0.01f;
 		}
 		//controls how long jump lasts
 		if (this.isJumped) {
@@ -68,23 +68,29 @@ public class Camera {
 	private void updateCamera(double dt) {
 		direction.set((float) (Math.cos(vertAngle) * Math.sin(horizAngle)), (float) Math.sin(vertAngle),
 				(float) (Math.cos(vertAngle) * Math.cos(horizAngle)));
-		direction.normalize().cross(worldUp, right);
-		//right.set((float) Math.sin(horizAngle - PI/2f), 0, (float) Math.cos(horizAngle - PI/2f));
-		//if (curSpeedX != 0) {
-		right.normalize().mul(curSpeedX*(float) dt, speed);				
+		//direction = direction.normalize();  //the math above creates a normal vector, so this is unnecessary!
+		//direction x worldUp gives a vector that points directly right from the camera
+		direction.cross(worldUp, right);
+
+		//normalize the right vector and scale it by the movement speed in that direction
+		//then shift the camera's position by adding the result
+		right.normalize().mul(curSpeedX*(float) dt, speed);
 		position.add(speed);
-		//}
-		//if (curSpeedZ != 0) {
-		position.add(direction.mul(curSpeedZ * (float) dt, speed));
-		//}
-		//position.mul(1f,0f,1f);
-		position.add(worldUp.mul(curSpeedY * (float) dt, speed));
-		direction.add(position);
 		
+		//worldUp x right gives a vector that points into the camera but parallel with the ground
+		//we scale that result by the movement speed in that direction and add that to the camera's position
+		worldUp.cross(right, speed);
+		position.add(speed.mul(curSpeedZ * (float) dt, speed));
+		
+		//then we scale worldUp by our speed in that direction and add that to the camera's position
+		position.add(worldUp.mul(curSpeedY * (float) dt, speed));
+		
+		//simple "ground" collision check
 		if (position.y < 0f) {
 			position.y = 0f;
 			this.isJumped = false;
 		}
+		direction.add(position);
 		
 		this.view.setLookAt(position, direction, worldUp); //right.cross(direction));
 	}
