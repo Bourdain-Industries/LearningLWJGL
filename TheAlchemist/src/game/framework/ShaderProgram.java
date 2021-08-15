@@ -67,10 +67,10 @@ public class ShaderProgram {
         glUseProgram(programId);
     }
     
-    public void setUniformMatrix4(String name, boolean transpose, float[] buffer) {
-    	int loc = glGetUniformLocation(programId, name);
-    	glUniformMatrix4fv(loc, transpose, buffer);
-    }
+    // public void setUniformMatrix4(String name, boolean transpose, float[] buffer) {
+    // 	int loc = glGetUniformLocation(programId, name);
+    // 	glUniformMatrix4fv(loc, transpose, buffer);
+    // }
 
     public void unbind() {
         glUseProgram(0);

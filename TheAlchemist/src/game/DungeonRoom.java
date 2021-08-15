@@ -44,7 +44,7 @@ public class DungeonRoom implements IRenderable{
 	private int level;
 	private long startShakeTime = 0;
 	private long shakeDuration = 0;
-	private Item[] lootContents;
+	// private Item[] lootContents;
 	
 	public DungeonRoom(RandomDungeon dungeon, int x, int y, int level){
 		this.dungeon = dungeon;
@@ -240,14 +240,11 @@ public class DungeonRoom implements IRenderable{
 		ebo = glGenBuffers();
 		
 		return new float[]{
-				10.0f, -0.7f, 10f, 0f,0f,0f, 1f, 1f,
-				10.0f, -0.7f, 0.0f,	0f,0f,0f, 1f, 0f,
+				1.0f,  1.0f, 0f,	0f,0f,0f,	1f, 1f,
+				1.0f, -1.0f, 0f,	0f,0f,0f,	1f, 0f,
 				
-				0f, -0.7f, 10f,	0f,0f,0f, 0f, 1f,
-				0f, -0.7f, 0.0f,	0f,0f,0f, 0f, 0f,
-				
-				0.0f, 9.7f, 10f, 0f,0f,0f, 1f, 1f,
-				0.0f, 9.7f, 0.0f,	0f,0f,0f, 1f, 0f
+				-1.0f, 1.0f, 0f,	0f,0f,0f,	0f, 1f,
+				-1.0f, -1.0f, 0f,	0f,0f,0f,	0f, 0f				
 		};
 	}
 
@@ -295,7 +292,7 @@ public class DungeonRoom implements IRenderable{
 	public Boolean activateObject(Vector2f playerPosition) {
 		if (loot == null) return false;
 		if (playerPosition.x > loot.position.x - 0.2f && playerPosition.y > loot.position.y - 0.2f) {
-			lootContents = loot.getContents();
+			// lootContents = loot.getContents();
 			return true;
 		}
 		return false;
@@ -307,7 +304,7 @@ public class DungeonRoom implements IRenderable{
 
 	@Override
 	public int getNumVertices() {
-		return 36;
+		return 6;
 	}
 	
 }

@@ -126,18 +126,12 @@ public class Player extends Unit {
 	}
 
 	public void closeLootWindow() {
-		this.looting = false;
-		
+		this.looting = false;		
 	}
 
 	@Override
 	public int getNumVertices() {
 		return 6;
-	}
-
-	public void jump() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

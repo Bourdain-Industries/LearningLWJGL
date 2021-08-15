@@ -17,13 +17,13 @@ public class RandomDungeon {
 		//make size 7x7, 9x9, or 11x11: odd number ensures centered starting room
 		if (sizeX%2==0) { this.sizeX -= 1; }
 		if (sizeY%2==0) { this.sizeY -= 1; }
+		this.midX = this.sizeX/2;
+		this.midY = this.sizeY/2;
 		rooms = new DungeonRoom[this.sizeX][this.sizeY];
 		this.addRoom(0, 0, level);
 	}
 
 	public DungeonRoom addRoom(int x, int y, int level){
-		this.midX = this.sizeX/2;
-		this.midY = this.sizeY/2;
 		if(Math.abs(x)<=midX && Math.abs(y)<=midY){
 			if (this.rooms[midX+x][midY+y] == null){
 				this.rooms[midX+x][midY+y] = new DungeonRoom(this, x, y, level);

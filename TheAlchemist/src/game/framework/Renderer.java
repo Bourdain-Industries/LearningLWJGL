@@ -12,14 +12,14 @@ import java.nio.IntBuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
-import game.Camera;
+// import game.Camera;
 
 public class Renderer {
 	
 	private ShaderProgram shader;
-	private Camera camera;
+	// private Camera camera;
 	
-	public Renderer(Camera camera) {
+	public Renderer() {
 		try {
 			shader = new ShaderProgram();
 			shader.createVertexShader(
@@ -31,7 +31,7 @@ public class Renderer {
 				"out vec3 ourColor; " +
 				"out vec2 TexCoord; " +
 				"void main() { " +
-				"gl_Position = camera * vec4(aPos, 1.0); " +
+				"gl_Position = vec4(aPos, 1.0); " +
 				"ourColor = aColor; " +
 				"TexCoord = aTexCoord; }");
 			shader.createFragmentShader(
@@ -48,7 +48,7 @@ public class Renderer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.camera = camera;
+		// this.camera = camera;
 	}
 	
 	public void init(IRenderable obj) {
@@ -94,7 +94,7 @@ public class Renderer {
 		
 		shader.bind();
 		
-		shader.setUniformMatrix4("camera", false, camera.getCamera());
+		// shader.setUniformMatrix4("camera", false, camera.getCamera());
 		glBindVertexArray(obj.getVao());
 		glBindTexture(GL11.GL_TEXTURE_2D, obj.getTexture());
 		glBindBuffer(GL_ARRAY_BUFFER, obj.getVbo());
